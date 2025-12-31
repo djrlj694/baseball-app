@@ -9,6 +9,7 @@ in a sortable React UI with generated player descriptions and inline editing.
   - [Features](#features)
   - [Project Structure](#project-structure)
   - [Installation](#installation)
+  - [Prerequisites](#prerequisites)
   - [Quickstart (Docker)](#quickstart-docker)
   - [Running the App (Frontend, Backend, Database)](#running-the-app-frontend-backend-database)
   - [Usage](#usage)
@@ -74,7 +75,6 @@ baseball-app/
 ```
 
 ## Installation
-Prerequisites: Docker, Docker Compose, Node 20+, npm.
 
 Clone and install frontend deps:
 ```sh
@@ -87,6 +87,16 @@ For backend local dev (optional):
 cd ../backend
 pip install -r requirements.txt
 ```
+
+## Prerequisites
+| Tool                   | Minimum version | Notes                                 |
+| ---------------------- | --------------- | ------------------------------------- |
+| Node.js                | 20.x            | Vite dev server and frontend builds   |
+| npm                    | 10.x            | Ships with Node 20                    |
+| Python                 | 3.13            | FastAPI backend                       |
+| Docker                 | 24.x            | Containers for db/backend/frontend    |
+| Docker Compose         | v2              | `docker compose ...`                  |
+| Postgres client (psql) | 14+             | Optional: manual schema apply         |
 
 ## Quickstart (Docker)
 From the repo root:
@@ -178,6 +188,7 @@ docker volume rm baseball-app_pgdata
 Key env vars (see `docker-compose.yml`):
 - Backend: `DATABASE_URL`, `BASEBALL_API_URL`, `CORS_ORIGINS` (default allows http://localhost:5173)
 - Frontend: `VITE_API_BASE_URL` (default http://localhost:8000)
+Quick start for local overrides: copy `backend/.env.example` to `.env` and `frontend/.env.example` to `.env` and adjust as needed.
 
 ## Development
 Frontend (hot reload):
@@ -216,11 +227,25 @@ Schema lives in `backend/sql/schema.sql`. If running Postgres outside Docker:
 psql "postgresql://app:app@localhost:5433/baseball" -f backend/sql/schema.sql
 ```
 
+## Testing & Verification
+- Frontend build check: `cd frontend && npm run build`
+- Backend lint/tests: (add when available; e.g., `pytest`, `ruff`, `black` if configured)
+- Manual API sanity: run `docker compose up --build`, then:
+  - `curl -X POST http://localhost:8000/api/import/baseball`
+  - `curl http://localhost:8000/api/players?sort_by=hits`
+
+## Release / Build Notes
+- Production bundle: `cd frontend && npm run build` (preview with `npm run preview`)
+- Docker images: `docker compose build` to refresh; tag/push as needed for registries
+- Ports in use: frontend 5173, backend 8000, Postgres 5433 (adjust compose/env if they collide)
+
 ## Troubleshooting
 - Blank page: ensure `frontend/index.html` has `#root` and the dev server is running.
 - CORS errors: set `CORS_ORIGINS` to match your frontend origin.
 - DB connection issues: confirm Postgres is on port 5433 (per compose) and `DATABASE_URL` matches.
 - Import fails: verify `BASEBALL_API_URL` is reachable and not blocked by network policy.
+- Ports already in use: change mapped ports in `docker-compose.yml` or adjust Vite/uvicorn flags.
+- Re-seed data: rerun import or drop the `pgdata` volume (`docker volume rm baseball-app_pgdata`).
 
 ## License
 MIT (see LICENSE). Credits to the Fraction test API for sample data.

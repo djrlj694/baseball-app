@@ -82,12 +82,15 @@ baseball-app/
 ## Installation
 
 Clone and install frontend deps:
+
 ```sh
 git clone <repo> baseball-app
 cd baseball-app/frontend
 npm install
 ```
+
 For backend local dev (optional):
+
 ```sh
 cd ../backend
 pip install -r requirements.txt
@@ -105,15 +108,19 @@ pip install -r requirements.txt
 | Python                 | 3.13            | FastAPI backend                       |
 
 ## Quickstart (Docker)
+
 From the repo root:
+
 ```sh
 docker compose up --build
 ```
+
 - Frontend: http://localhost:5173
 - API: http://localhost:8000
 - Postgres: localhost:5433 (db/app/app)
 
 Stop:
+
 ```sh
 docker compose down
 ```
@@ -184,6 +191,7 @@ docker volume rm baseball-app_pgdata
 ```
 
 ## Usage
+
 1) Click **Import latest** to pull the API and populate the DB.
 2) Use the **Order players by** dropdown (hits or HR).
 3) Click a table row to load the generated description.
@@ -191,23 +199,32 @@ docker volume rm baseball-app_pgdata
 5) **Refresh** repulls the ordered list (reflects edits).
 
 ## Configuration
+
 Key env vars (see `docker-compose.yml`):
+
 - Backend: `DATABASE_URL`, `BASEBALL_API_URL`, `CORS_ORIGINS` (default allows http://localhost:5173)
 - Frontend: `VITE_API_BASE_URL` (default http://localhost:8000)
-Quick start for local overrides: copy `backend/.env.example` to `.env` and `frontend/.env.example` to `.env` and adjust as needed.
+
+Quick start for local overrides: copy `backend/.env.example` to `.env` and `frontend/.env.example`
+to `.env` and adjust as needed.
 
 ## Development
+
 Frontend (hot reload):
+
 ```sh
 cd frontend
 npm run dev
 ```
 Backend (reload):
+
 ```sh
 cd backend
 DATABASE_URL="postgresql+psycopg://app:app@localhost:5433/baseball" uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
 Build frontend:
+
 ```sh
 npm run build
 ```
@@ -219,6 +236,7 @@ npm run build
 - `PUT /api/players/{id}` – update name/position/stats (partial allowed if stats already exist).
 
 Example update payload:
+
 ```json
 {
   "name": "Jane Doe",
@@ -228,12 +246,15 @@ Example update payload:
 ```
 
 ## Database
+
 Schema lives in `backend/sql/schema.sql`. If running Postgres outside Docker:
+
 ```sh
 psql "postgresql://app:app@localhost:5433/baseball" -f backend/sql/schema.sql
 ```
 
 ## Testing & Verification
+
 - Frontend build check: `cd frontend && npm run build`
 - Backend lint/tests: (add when available; e.g., `pytest`, `ruff`, `black` if configured)
 - Manual API sanity: run `docker compose up --build`, then:
@@ -241,11 +262,13 @@ psql "postgresql://app:app@localhost:5433/baseball" -f backend/sql/schema.sql
   - `curl http://localhost:8000/api/players?sort_by=hits`
 
 ## Release / Build Notes
+
 - Production bundle: `cd frontend && npm run build` (preview with `npm run preview`)
 - Docker images: `docker compose build` to refresh; tag/push as needed for registries
 - Ports in use: frontend 5173, backend 8000, Postgres 5433 (adjust compose/env if they collide)
 
 ## Troubleshooting
+
 - Blank page: ensure `frontend/index.html` has `#root` and the dev server is running.
 - CORS errors: set `CORS_ORIGINS` to match your frontend origin.
 - DB connection issues: confirm Postgres is on port 5433 (per compose) and `DATABASE_URL` matches.
@@ -254,4 +277,5 @@ psql "postgresql://app:app@localhost:5433/baseball" -f backend/sql/schema.sql
 - Re-seed data: rerun import or drop the `pgdata` volume (`docker volume rm baseball-app_pgdata`).
 
 ## License
+
 MIT (see LICENSE). Credits to the Fraction test API for sample data.

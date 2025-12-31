@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class CareerBattingOut(BaseModel):
+class _BaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CareerBattingOut(_BaseSchema):
     games: int
     at_bats: int
     runs: int
@@ -25,11 +29,41 @@ class CareerBattingOut(BaseModel):
     ops: float = Field(..., ge=0)
 
 
-class PlayerOut(BaseModel):
+class CareerBattingUpdate(BaseModel):
+    games: int | None = None
+    at_bats: int | None = None
+    runs: int | None = None
+    hits: int | None = None
+    doubles: int | None = None
+    triples: int | None = None
+    home_runs: int | None = None
+    rbi: int | None = None
+    walks: int | None = None
+    strikeouts: int | None = None
+    stolen_bases: int | None = None
+    caught_stealing: int | None = None
+
+    avg: float | None = None
+    obp: float | None = None
+    slg: float | None = None
+    ops: float | None = None
+
+
+class PlayerOut(_BaseSchema):
     id: UUID
     name: str
     primary_position: str
     career_batting: CareerBattingOut | None
+
+
+class PlayerDetailOut(PlayerOut):
+    description: str
+
+
+class PlayerUpdate(BaseModel):
+    name: str | None = None
+    primary_position: str | None = None
+    career_batting: CareerBattingUpdate | None = None
 
 
 class ImportResult(BaseModel):

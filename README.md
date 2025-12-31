@@ -12,11 +12,16 @@ in a sortable React UI with generated player descriptions and inline editing.
   - [Prerequisites](#prerequisites)
   - [Quickstart (Docker)](#quickstart-docker)
   - [Running the App (Frontend, Backend, Database)](#running-the-app-frontend-backend-database)
+    - [Prepare the Database](#prepare-the-database)
+    - [Start All Services](#start-all-services)
+    - [Stop All Services](#stop-all-services)
   - [Usage](#usage)
   - [Configuration](#configuration)
   - [Development](#development)
   - [API Reference](#api-reference)
   - [Database](#database)
+  - [Testing \& Verification](#testing--verification)
+  - [Release / Build Notes](#release--build-notes)
   - [Troubleshooting](#troubleshooting)
   - [License](#license)
 
@@ -89,14 +94,15 @@ pip install -r requirements.txt
 ```
 
 ## Prerequisites
+
 | Tool                   | Minimum version | Notes                                 |
 | ---------------------- | --------------- | ------------------------------------- |
-| Node.js                | 20.x            | Vite dev server and frontend builds   |
-| npm                    | 10.x            | Ships with Node 20                    |
-| Python                 | 3.13            | FastAPI backend                       |
 | Docker                 | 24.x            | Containers for db/backend/frontend    |
 | Docker Compose         | v2              | `docker compose ...`                  |
+| Node.js                | 20.x            | Vite dev server and frontend builds   |
+| npm                    | 10.x            | Ships with Node 20                    |
 | Postgres client (psql) | 14+             | Optional: manual schema apply         |
+| Python                 | 3.13            | FastAPI backend                       |
 
 ## Quickstart (Docker)
 From the repo root:

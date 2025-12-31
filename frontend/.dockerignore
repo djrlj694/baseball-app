@@ -1,0 +1,20 @@
+# Ignore node modules and build output
+node_modules/
+dist/
+build/
+
+# Ignore environment files
+.env
+
+# Ignore git and Docker files
+.git
+.gitignore
+.dockerignore
+
+# Ignore editor and OS files
+*.swp
+.DS_Store
+
+# Ignore test and coverage files
+coverage/
+*.log

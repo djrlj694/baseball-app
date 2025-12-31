@@ -516,6 +516,7 @@ backend/**.pyc
 .env
 .env.*
 *.env
+!.env.example
 
 # Docker / local volumes
 pgdata/

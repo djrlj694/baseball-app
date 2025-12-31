@@ -47,14 +47,21 @@ SORT_COLUMNS = {
 }
 
 
-def _first_value(row: dict[str, Any], keys: list[str]) -> Any:
+def _first_value(
+    row: dict[str, Any],
+    keys: list[str],
+) -> Any:
     for key in keys:
         if key in row:
             return row[key]
     return None
 
 
-def _parse_int(row: dict[str, Any], keys: list[str], default: int = 0) -> int:
+def _parse_int(
+    row: dict[str, Any],
+    keys: list[str],
+    default: int = 0,
+) -> int:
     value = _first_value(row, keys)
     try:
         if value in (None, "", "--"):
@@ -65,7 +72,9 @@ def _parse_int(row: dict[str, Any], keys: list[str], default: int = 0) -> int:
 
 
 def _parse_optional_int(
-    row: dict[str, Any], keys: list[str], default: int | None = None
+    row: dict[str, Any],
+    keys: list[str],
+    default: int | None = None,
 ) -> int | None:
     value = _first_value(row, keys)
     try:
@@ -76,7 +85,11 @@ def _parse_optional_int(
         return default
 
 
-def _parse_float(row: dict[str, Any], keys: list[str], default: float = 0.0) -> float:
+def _parse_float(
+    row: dict[str, Any],
+    keys: list[str],
+    default: float = 0.0,
+) -> float:
     value = _first_value(row, keys)
     try:
         if value in (None, "", "--"):
@@ -90,9 +103,17 @@ def _to_player_and_stats(
     row: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     player = {
-        "name": str(_first_value(row, ["Player name", "player_name", "name"]) or "").strip(),
+        "name": str(
+            _first_value(
+                row,
+                ["Player name", "player_name", "name"],
+            ) or "",
+        ).strip(),
         "primary_position": str(
-            _first_value(row, ["position", "primary_position", "Position"]) or ""
+            _first_value(
+                row,
+                ["position", "primary_position", "Position"],
+            ) or ""
         ).strip(),
     }
     stats = {
@@ -101,8 +122,14 @@ def _to_player_and_stats(
         "runs": _parse_int(row, ["Runs"]),
         "hits": _parse_int(row, ["Hits"]),
         "doubles": _parse_int(row, ["Double (2B)", "Doubles"]),
-        "triples": _parse_int(row, ["third baseman", "Triple (3B)", "Triples (3B)", "Triples"]),
-        "home_runs": _parse_int(row, ["home run", "Home runs", "Home Runs", "HR"]),
+        "triples": _parse_int(
+            row,
+            ["third baseman", "Triple (3B)", "Triples (3B)", "Triples"],
+        ),
+        "home_runs": _parse_int(
+            row,
+            ["home run", "Home runs", "Home Runs", "HR"],
+        ),
         "rbi": _parse_int(row, ["run batted in", "RBI"]),
         "walks": _parse_int(row, ["a walk", "Walks", "BB"]),
         "strikeouts": _parse_int(row, ["Strikeouts", "SO"]),
@@ -122,10 +149,15 @@ def _generate_description(player: Player) -> str:
     if stats is None:
         return (
             f"{player.name} lines up at {player.primary_position}. "
-            "We have not imported full stats yet, but this profile will refresh once they arrive."
+            "We have not imported full stats yet, "
+            "but this profile will refresh once they arrive."
         )
 
-    contact = "contact-first" if stats.hits > stats.home_runs * 10 else "power bat"
+    contact = (
+        "contact-first"
+        if stats.hits > stats.home_runs * 10
+        else "power bat"
+    )
     slash = f"{float(stats.avg):.3f}/{float(stats.obp):.3f}/{float(stats.slg):.3f}"
     return (
         f"{player.name} plays {player.primary_position} and profiles as a {contact} with "
@@ -266,10 +298,16 @@ def list_players(
 
 
 @app.get("/api/players/{player_id}", response_model=PlayerDetailOut)
-def get_player_detail(player_id: UUID, db: Session = Depends(get_db)) -> PlayerDetailOut:
+def get_player_detail(
+    player_id: UUID,
+    db: Session = Depends(get_db),
+) -> PlayerDetailOut:
     player = _get_player_or_404(player_id, db)
     payload = _serialize_player(player)
-    return PlayerDetailOut(**payload.model_dump(), description=_generate_description(player))
+    return PlayerDetailOut(
+        **payload.model_dump(),
+        description=_generate_description(player),
+    )
 
 
 @app.put("/api/players/{player_id}", response_model=PlayerDetailOut)
@@ -311,7 +349,10 @@ def update_player(
             if required_missing:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Missing required stats to create new record: {', '.join(required_missing)}",
+                    detail=(
+                        "Missing required stats to create new record: "
+                        f"{', '.join(required_missing)}"
+                    ),
                 )
             player.career_batting = PlayerCareerBatting(
                 player_id=player.id,
@@ -327,4 +368,7 @@ def update_player(
     db.commit()
     db.refresh(player)
     payload_out = _serialize_player(player)
-    return PlayerDetailOut(**payload_out.model_dump(), description=_generate_description(player))
+    return PlayerDetailOut(
+        **payload_out.model_dump(),
+        description=_generate_description(player),
+    )

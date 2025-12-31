@@ -1,61 +1,30 @@
-.layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  min-height: 100vh;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-
-.sidebar {
-  padding: 16px;
-  border-right: 1px solid #ddd;
-}
-
-.snapshotList {
-  margin-top: 12px;
-  display: grid;
-  gap: 8px;
-}
-
-.snapshotItem {
-  text-align: left;
-  padding: 10px;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.main {
-  padding: 16px;
-}
-
-.actions {
-  display: flex;
-  gap: 10px;
-  margin: 12px 0;
-}
-
-.panel {
-  margin-top: 16px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 12px;
-}
-
-pre {
-  margin: 0;
+.tableWrap {
   overflow: auto;
-  max-height: 40vh;
-  background: #0b1020;
-  color: #e6edf3;
-  padding: 12px;
-  border-radius: 10px;
+  max-height: 70vh;
 }
 
-.error {
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: white;
+}
+
+.status {
   margin-top: 10px;
   padding: 10px;
-  border: 1px solid #ffb4b4;
-  background: #fff1f1;
+  border: 1px solid #cfe8cf;
+  background: #f2fff2;
   border-radius: 10px;
 }

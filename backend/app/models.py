@@ -3,7 +3,9 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone, date
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, Text
+from sqlalchemy import (
+    Boolean, Date, DateTime, ForeignKey, Integer, Numeric, Text
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -13,7 +15,9 @@ from .db import Base
 class BaseballSnapshot(Base):
     __tablename__ = "baseball_snapshots"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     fetched_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -26,7 +30,9 @@ class BaseballSnapshot(Base):
 class Team(Base):
     __tablename__ = "teams"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     name: Mapped[str] = mapped_column(Text, nullable=False)
     city: Mapped[str | None] = mapped_column(Text)
     abbreviation: Mapped[str | None] = mapped_column(Text)
@@ -40,7 +46,9 @@ class Team(Base):
 class Player(Base):
     __tablename__ = "players"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     name: Mapped[str] = mapped_column(Text, nullable=False)
     primary_position: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
@@ -59,7 +67,9 @@ class Player(Base):
 class Game(Base):
     __tablename__ = "games"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
     game_date: Mapped[date] = mapped_column(Date, nullable=False)
     venue: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(

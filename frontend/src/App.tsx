@@ -1,33 +1,38 @@
+
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { importBaseball, listPlayers, type Player } from "./api";
+import { useApi } from "./useApi";
 
 export default function App() {
   const [players, setPlayers] = useState<Player[]>([]);
-  const [error, setError] = useState<string>("");
   const [status, setStatus] = useState<string>("");
+  const {
+    call: fetchPlayers,
+    loading: loadingPlayers,
+    error: errorPlayers,
+  } = useApi(listPlayers);
+  const {
+    call: doImport,
+    loading: loadingImport,
+    error: errorImport,
+  } = useApi(importBaseball);
 
   async function refresh() {
-    setError("");
-    const rows = await listPlayers();
+    const rows = await fetchPlayers();
     setPlayers(rows);
   }
 
   async function onImport() {
-    setError("");
     setStatus("Importing...");
-    try {
-      const r = await importBaseball();
-      setStatus(`Imported. inserted=${r.inserted_players}, updated=${r.updated_players}`);
-      await refresh();
-    } catch (e) {
-      setStatus("");
-      setError(String(e));
-    }
+    const r = await doImport();
+    setStatus(`Imported. inserted=${r.inserted_players}, updated=${r.updated_players}`);
+    await refresh();
   }
 
   useEffect(() => {
-    refresh().catch((e) => setError(String(e)));
+    refresh();
+    // eslint-disable-next-line
   }, []);
 
   const rows = useMemo(() => players, [players]);
@@ -35,9 +40,16 @@ export default function App() {
   return (
     <div className="main">
       <h1>Baseball Explorer</h1>
-
       <div className="actions">
-        <button onClick={onImport}>Import from API</button>
+        <button onClick={onImport} disabled={loadingImport || loadingPlayers}>
+          {loadingImport ? "Importing..." : "Import from API"}
+        </button>
+        {status && <span style={{ marginLeft: 8 }}>{status}</span>}
+      </div>
+      {(errorPlayers || errorImport) && (
+        <div className="error">{errorPlayers || errorImport}</div>
+      )}
+      {loadingPlayers && <div>Loading players...</div>}
         <button onClick={() => refresh()}>Refresh</button>
       </div>
 

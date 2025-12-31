@@ -1,17 +1,23 @@
 # Baseball App (React + FastAPI + Postgres)
 
 A beginner-friendly full-stack app that imports baseball player career batting stats from an
-external API and stores them in a normalized Postgres schema. The UI displays the imported players
-and key stats in a typed table.
+external REST API (i.e., the Fraction test API), stores them in Postgres, and lets you explore them
+in a sortable React UI with generated player descriptions and inline editing.
 
 - [Baseball App (React + FastAPI + Postgres)](#baseball-app-react--fastapi--postgres)
   - [Tech Stack](#tech-stack)
   - [Features](#features)
   - [Project Structure](#project-structure)
+  - [Installation](#installation)
+  - [Quickstart (Docker)](#quickstart-docker)
   - [Running the App (Frontend, Backend, Database)](#running-the-app-frontend-backend-database)
-    - [Prepare the Database](#prepare-the-database)
-    - [Start All Services](#start-all-services)
-    - [Stop All Services](#stop-all-services)
+  - [Usage](#usage)
+  - [Configuration](#configuration)
+  - [Development](#development)
+  - [API Reference](#api-reference)
+  - [Database](#database)
+  - [Troubleshooting](#troubleshooting)
+  - [License](#license)
 
 ## Tech Stack
 
@@ -31,10 +37,13 @@ and key stats in a typed table.
 
 ## Features
 
-- Import baseball data from the external API into Postgres (upsert)
-- Normalized schema with typed fields (players + career batting stats)
-- Simple UI to trigger import and view results
-- Docker Compose for one-command local setup
+- Import players from https://api.hirefraction.com/api/test/baseball into Postgres (upsert).
+- Sort roster by hits or home runs.
+- Click a player to see an LLM-style generated profile.
+- Edit player name/position/stats and persist to Postgres.
+- Docker Compose for one-command local setup.
+
+
 
 ## Project Structure
 
@@ -62,6 +71,35 @@ baseball-app/
       App.tsx
       main.tsx
       App.css
+```
+
+## Installation
+Prerequisites: Docker, Docker Compose, Node 20+, npm.
+
+Clone and install frontend deps:
+```sh
+git clone <repo> baseball-app
+cd baseball-app/frontend
+npm install
+```
+For backend local dev (optional):
+```sh
+cd ../backend
+pip install -r requirements.txt
+```
+
+## Quickstart (Docker)
+From the repo root:
+```sh
+docker compose up --build
+```
+- Frontend: http://localhost:5173
+- API: http://localhost:8000
+- Postgres: localhost:5433 (db/app/app)
+
+Stop:
+```sh
+docker compose down
 ```
 
 ## Running the App (Frontend, Backend, Database)
@@ -128,3 +166,61 @@ database data will persist in the Docker volume unless you remove it with:
 ```sh
 docker volume rm baseball-app_pgdata
 ```
+
+## Usage
+1) Click **Import latest** to pull the API and populate the DB.
+2) Use the **Order players by** dropdown (hits or HR).
+3) Click a table row to load the generated description.
+4) Press **Edit player**, adjust fields, and **Save player** to persist changes.
+5) **Refresh** repulls the ordered list (reflects edits).
+
+## Configuration
+Key env vars (see `docker-compose.yml`):
+- Backend: `DATABASE_URL`, `BASEBALL_API_URL`, `CORS_ORIGINS` (default allows http://localhost:5173)
+- Frontend: `VITE_API_BASE_URL` (default http://localhost:8000)
+
+## Development
+Frontend (hot reload):
+```sh
+cd frontend
+npm run dev
+```
+Backend (reload):
+```sh
+cd backend
+DATABASE_URL="postgresql+psycopg://app:app@localhost:5433/baseball" uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+Build frontend:
+```sh
+npm run build
+```
+
+## API Reference
+- `POST /api/import/baseball` – import/upsert players.
+- `GET /api/players?sort_by=hits|home_runs&limit=200&offset=0` – list players.
+- `GET /api/players/{id}` – detail with generated description.
+- `PUT /api/players/{id}` – update name/position/stats (partial allowed if stats already exist).
+
+Example update payload:
+```json
+{
+  "name": "Jane Doe",
+  "primary_position": "RF",
+  "career_batting": { "hits": 120, "home_runs": 18, "avg": 0.284 }
+}
+```
+
+## Database
+Schema lives in `backend/sql/schema.sql`. If running Postgres outside Docker:
+```sh
+psql "postgresql://app:app@localhost:5433/baseball" -f backend/sql/schema.sql
+```
+
+## Troubleshooting
+- Blank page: ensure `frontend/index.html` has `#root` and the dev server is running.
+- CORS errors: set `CORS_ORIGINS` to match your frontend origin.
+- DB connection issues: confirm Postgres is on port 5433 (per compose) and `DATABASE_URL` matches.
+- Import fails: verify `BASEBALL_API_URL` is reachable and not blocked by network policy.
+
+## License
+MIT (see LICENSE). Credits to the Fraction test API for sample data.

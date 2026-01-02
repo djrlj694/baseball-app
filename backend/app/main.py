@@ -7,7 +7,7 @@ from uuid import UUID
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import desc, select
+from sqlalchemy import Float, case, select
 from sqlalchemy.orm import Session, selectinload
 
 from .config import BASEBALL_API_URL, CORS_ORIGINS
@@ -41,9 +41,14 @@ app.add_middleware(
 )
 
 
+HITS_PER_GAME_EXPR = PlayerCareerBatting.hits.cast(Float) / case(
+    (PlayerCareerBatting.games > 0, PlayerCareerBatting.games), else_=None
+)
+
 SORT_COLUMNS = {
     "hits": PlayerCareerBatting.hits,
     "home_runs": PlayerCareerBatting.home_runs,
+    "hits_per_game": HITS_PER_GAME_EXPR,
 }
 
 
@@ -170,6 +175,13 @@ def _generate_description(player: Player) -> str:
 
 def _serialize_player(player: Player) -> PlayerOut:
     career = player.career_batting
+    hits_per_game = None
+    if career and career.games:
+        try:
+            hits_per_game = float(career.hits) / float(career.games)
+        except ZeroDivisionError:
+            hits_per_game = None
+
     return PlayerOut(
         id=player.id,
         name=player.name,
@@ -193,6 +205,7 @@ def _serialize_player(player: Player) -> PlayerOut:
             "obp": float(career.obp),
             "slg": float(career.slg),
             "ops": float(career.ops),
+            "hits_per_game": hits_per_game,
         },
     )
 
@@ -279,7 +292,7 @@ async def import_baseball(db: Session = Depends(get_db)) -> ImportResult:
 
 @app.get("/api/players", response_model=list[PlayerOut])
 def list_players(
-    sort_by: str = Query("hits", pattern="^(hits|home_runs)$"),
+    sort_by: str = Query("hits", pattern="^(hits|home_runs|hits_per_game)$"),
     limit: int = Query(200, ge=1, le=500),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
@@ -289,7 +302,7 @@ def list_players(
         select(Player)
         .join(PlayerCareerBatting, isouter=True)
         .options(selectinload(Player.career_batting))
-        .order_by(desc(sort_column).nulls_last(), Player.name)
+        .order_by(sort_column.desc().nulls_last(), Player.name)
         .offset(offset)
         .limit(limit)
     )

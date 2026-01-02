@@ -27,6 +27,7 @@ class CareerBattingOut(_BaseSchema):
     obp: float = Field(..., ge=0)
     slg: float = Field(..., ge=0)
     ops: float = Field(..., ge=0)
+    hits_per_game: float | None = Field(default=None, ge=0)
 
 
 class CareerBattingUpdate(BaseModel):

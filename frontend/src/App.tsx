@@ -22,6 +22,9 @@ const numberCell = (value: number | null | undefined) =>
 const slashCell = (value: number | null | undefined) =>
   value === null || value === undefined ? "–" : value.toFixed(3);
 
+const ratioCell = (value: number | null | undefined) =>
+  value === null || value === undefined ? "–" : value.toFixed(3);
+
 export default function App() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [sortBy, setSortBy] = useState<SortBy>("hits");
@@ -189,6 +192,7 @@ export default function App() {
           >
             <option value="hits">Hits (desc)</option>
             <option value="home_runs">Home runs (desc)</option>
+            <option value="hits_per_game">Hits per game (desc)</option>
           </select>
         </div>
         {status && <div className="status">{status}</div>}
@@ -221,6 +225,7 @@ export default function App() {
                   <th>OBP</th>
                   <th>SLG</th>
                   <th>OPS</th>
+                  <th title="Hits per game">H/G</th>
                 </tr>
               </thead>
               <tbody>
@@ -246,6 +251,7 @@ export default function App() {
                       <td>{slashCell(s?.obp)}</td>
                       <td>{slashCell(s?.slg)}</td>
                       <td>{slashCell(s?.ops)}</td>
+                      <td>{ratioCell(s?.hits_per_game ?? (s?.games ? s.hits / s.games : null))}</td>
                     </tr>
                   );
                 })}

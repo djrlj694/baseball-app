@@ -1,6 +1,6 @@
 const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-export type SortBy = "hits" | "home_runs";
+export type SortBy = "hits" | "home_runs" | "hits_per_game";
 
 export type CareerBatting = {
   games: number;
@@ -19,6 +19,7 @@ export type CareerBatting = {
   obp: number;
   slg: number;
   ops: number;
+  hits_per_game?: number | null;
 };
 
 export type Player = {
